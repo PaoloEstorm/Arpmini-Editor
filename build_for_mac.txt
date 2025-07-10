@@ -1,0 +1,3 @@
+pyinstaller --onefile --windowed --icon="Arpmini_Editor.icns" --name "Arpmini Editor" "Arpmini Editor.py" && \
+rm -f "dist/Arpmini Editor.app/Contents/Info.plist" && \
+cp Info.plist "dist/Arpmini Editor.app/Contents/Info.plist"

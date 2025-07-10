@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+ "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleDisplayName</key>
+  <string>Arpmini Editor</string>
+  <key>CFBundleName</key>
+  <string>Arpmini Editor</string>
+  <key>CFBundleIdentifier</key>
+  <string>com.estorm.arpminieditor</string>
+  <key>CFBundleVersion</key>
+  <string>1.0</string>
+  <key>CFBundleShortVersionString</key>
+  <string>1.0</string>
+  <key>NSHumanReadableCopyright</key>
+  <string>© 2025 Estorm</string>
+  <key>CFBundleGetInfoString</key>
+  <string>Arpmini Editor v1.0 by Paolo Estorm</string>
+  <key>CFBundleIconFile</key>
+  <string>Arpmini_Editor</string>
+</dict>
+</plist>

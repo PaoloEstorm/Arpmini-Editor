@@ -1,0 +1,1 @@
+pyinstaller --onefile --windowed --icon=Arpmini_Editor.ico --name "Arpmini Editor" --version-file=version.txt "Arpmini Editor.py"
