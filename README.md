@@ -1,4 +1,4 @@
-# Arpmini-Editor
+# Arpmini Editor
 Arpmini Editor is a cross-platform tool to manage tracks saved on your Arpmini device.
 Connect Arpmini to your computer, select the serial port, and export or import your songs in the *.arpmini format.
 
