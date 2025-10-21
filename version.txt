@@ -2,8 +2,8 @@
 
 VSVersionInfo(
   ffi=FixedFileInfo(
-    filevers=(1, 0, 0, 0),
-    prodvers=(1, 0, 0, 0),
+    filevers=(1, 1, 0, 0),
+    prodvers=(1, 1, 0, 0),
     mask=0x3f,
     flags=0x0,
     OS=0x40004,
@@ -18,11 +18,11 @@ VSVersionInfo(
         [
           StringStruct('CompanyName', 'Estorm'),
           StringStruct('FileDescription', 'Arpmini Editor'),
-          StringStruct('FileVersion', '1.0'),
+          StringStruct('FileVersion', '1.1'),
           StringStruct('InternalName', 'Arpmini Editor'),
           StringStruct('OriginalFilename', 'Arpmini Editor.exe'),
           StringStruct('ProductName', 'Arpmini Editor'),
-          StringStruct('ProductVersion', '1.0'),
+          StringStruct('ProductVersion', '1.1'),
           StringStruct('LegalCopyright', '© 2025 Estorm')
         ]
       )
