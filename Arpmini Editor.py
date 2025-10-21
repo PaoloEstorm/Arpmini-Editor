@@ -8,7 +8,7 @@ import threading
 import serial.tools.list_ports
 
 NUM_SLOTS = 60
-EXPORT_SIZE = 272
+EXPORT_SIZE = 288 # 8X32(n.tracks X n.notes)+32(config) bytes
 
 class ArpminiEditor(ctk.CTk):
 
@@ -125,19 +125,26 @@ class ArpminiEditor(ctk.CTk):
     def monitor_connection(self):
         if self.connected and self.serial_port:
             try:
-                self.serial_port.in_waiting  # semplice test di connessione
+                self.serial_port.in_waiting  # simple connection test
             except (serial.SerialException, OSError):
-                self.after(100, self.toggle_connection)  # chiama la disconnessione
-        self.after(1000, self.monitor_connection)  # controlla ogni secondo
+                self.after(100, self.toggle_connection)  # call the disconnection
+        self.after(1000, self.monitor_connection)  # check every second
 
     def get_serial_ports(self):
         ports = serial.tools.list_ports.comports()
         self.port_info_map = {}
         items = []
+
         for port in ports:
-            label = f"{port.device} - {port.description}"
-            items.append(label)
-            self.port_info_map[label] = port.device  # Map the full label to the actual port.device
+            
+            if port.vid == 0x2341 and port.pid == 0x9030:
+                label = f"{port.device} - Arpmini"
+                items.append(label)
+                self.port_info_map[label] = port.device 
+
+        if not items:
+            items = ["No Arpmini found"]
+
         return items
 
     def toggle_connection(self):
@@ -200,27 +207,15 @@ class ArpminiEditor(ctk.CTk):
                 self.slot_status[i] = "drum"
             self.update_slot_label(i)
 
-    def check_slot(self, slot_number):
-        if not self.serial_port:
-            return 0
-        try:
-            self.serial_port.write(bytes([0xFC, slot_number]))
-            response = self.serial_port.read(2)
-            if len(response) == 2 and response[1] == 0xFC:
-                return response[0]
-        except Exception:
-            return 0
-        return 0
-
     def update_slot_label(self, i):
         label = self.slot_status[i].capitalize() + f" {i+1}"
 
         if self.slot_status[i] == "empty":
-            fg = "#444444"        # grigio base
-            hover = "#3C3C3C"     # grigio più scuro
+            fg = "#444444"        # gray
+            hover = "#3C3C3C"     # darker gray
         else:
-            fg = "#1f6aa5"        # blu base
-            hover = "#154a7a"     # blu più scuro
+            fg = "#1f6aa5"        # blu
+            hover = "#154a7a"     # darker blu
 
         self.slot_buttons[i].configure(
             text=label,
@@ -271,6 +266,18 @@ class ArpminiEditor(ctk.CTk):
         slot_type = self.slot_status[i].capitalize()
         self.slot_label.configure(text=f"{slot_type} {i+1}")
 
+    def check_slot(self, slot_number):
+        if not self.serial_port:
+            return 0
+        try:
+            self.serial_port.write(bytes([0xFC, slot_number, 0x00]))  # trigger dummy
+            response = self.serial_port.read(2)
+            if len(response) == 2 and response[1] == 0xFC:
+                return response[0]
+        except Exception:
+            return 0
+        return 0
+
     def import_song(self):
         file_path = fd.askopenfilename(filetypes=[("Arpmini Files", "*.arpmini")])
         if not file_path:
@@ -284,7 +291,7 @@ class ArpminiEditor(ctk.CTk):
             return
 
         if len(data) != EXPORT_SIZE:
-            self.show_popup("Error", "Invalid file size. Must be exactly 272 bytes.")
+            self.show_popup("Error", "Invalid file size. Must be exactly 288 bytes.")
             return
 
         if self.slot_status[self.selected_slot] != "empty":
@@ -328,7 +335,7 @@ class ArpminiEditor(ctk.CTk):
             return
 
         try:
-            self.serial_port.write(bytes([0xFD, self.selected_slot + 1]))
+            self.serial_port.write(bytes([0xFD, self.selected_slot + 1, 0x00]))  # trigger dummy
             data = self.serial_port.read(EXPORT_SIZE + 1)
             if len(data) == EXPORT_SIZE + 1 and data[-1] == 0xFF:
                 with open(file_path, 'wb') as f:
@@ -377,23 +384,22 @@ class ArpminiEditor(ctk.CTk):
         popup_height = 150
 
         popup = ctk.CTkToplevel(self)
-        popup.withdraw()  # nasconde temporaneamente
+        popup.withdraw()  # temporarely hide
         popup.overrideredirect(True)
         popup.title(title)
         popup.resizable(False, False)
 
-        popup.transient(self)       # lega il popup alla finestra principale
-        popup.lift()                # porta il popup in primo piano
-        popup.grab_set()            # blocca l’interazione fuori dal popup
-        popup.focus_force()         # forza il focus
+        popup.transient(self)       # link the popup to the main window
+        popup.lift()                # bring the popup to the front
+        popup.grab_set()            # block interaction outside the popup
+        popup.focus_force()         # force the focus
 
-        # Calcola la posizione prima di mostrarlo
+        # Calculate the position before showing it
         pos_x = self.app_center_x - (popup_width // 2)
         pos_y = self.app_center_y - (popup_height // 2)
         popup.geometry(f"{popup_width}x{popup_height}+{pos_x}+{pos_y}")
 
-        # Ora che è posizionato correttamente, mostralo
-        popup.deiconify()
+        popup.deiconify() # show popup
 
         label = ctk.CTkLabel(popup, text=message, wraplength=280)
         label.pack(pady=20)
@@ -410,21 +416,21 @@ class ArpminiEditor(ctk.CTk):
         popup_height = 150
 
         popup = ctk.CTkToplevel(self)
-        popup.withdraw()  # nasconde temporaneamente
+        popup.withdraw()  # temporarely hide
         popup.overrideredirect(True)
         popup.title(title)
         popup.resizable(False, False)
 
-        popup.transient(self)       # lega il popup alla finestra principale
-        popup.lift()                # porta il popup in primo piano
-        popup.grab_set()            # blocca l’interazione fuori dal popup
-        popup.focus_force()         # forza il focus
+        popup.transient(self)       # link the popup to the main window
+        popup.lift()                # bring the popup to the front
+        popup.grab_set()            # block interaction outside the popup
+        popup.focus_force()         # force the focus
 
         pos_x = self.app_center_x - (popup_width // 2)
         pos_y = self.app_center_y - (popup_height // 2)
         popup.geometry(f"{popup_width}x{popup_height}+{pos_x}+{pos_y}")
 
-        popup.deiconify()  # mostra dopo la geometry corretta
+        popup.deiconify() # show popup
         popup.grab_set()
 
         label = ctk.CTkLabel(popup, text=message, wraplength=260)
